@@ -2,7 +2,7 @@
 PenroseLSystem ds;
 
 void setup() {
-  size(1600, 1000);
+  size(300, 300);
   ds = new PenroseLSystem();
   ds.simulate(4);
 }
