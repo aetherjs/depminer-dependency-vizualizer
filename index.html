@@ -25,7 +25,6 @@
   </style>
 
   <title>Try DepMiner</title>
-  <script src="processInput.js"></script>
 
   <!-- Bootstrap core CSS -->
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -62,10 +61,10 @@
         <h1 class="mt-5">Try DepMiner</h1>
         <p>DepMiner — an open source,language-agnostic  tool  for  mining  detailed  dependencies  datafrom  source  code.  DepMiner  can  be  easily  integrated  into  an experimental  pipeline  to  conduct  large-scale  studies  involving intra-project  dependencies.</p>
         <p>This web app allows you to visualise sample DepMiner output. Select the JSON output file produced by DepMiner and the visualisation shall appear shortly on the graph below.</p>
-        <p>The simple graph shows structure og the project - each node respresent a file in a project directory and the edge between two nodes represents a dependency that exist between the two. For simplicity's sake dependency direction is not reflected on the graph.</p>
-        <p>If you don't yet have access to DepMiner's output - you can click <i>Use Sample Output</i> to see a dependency graph for DepMiner itself. The sample output used to build the graph can be obtained by running <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">./extract-dependencies src/ src/ .
+        <p>The simple graph shows structure of the project — each node respresent a file in a project directory and the edge between two nodes represents a dependency that exist between the two. Directional markers on the edges represent dependency direction - arrows point from usages to declarations (i.e. Main.java -> Util.java reads Main.java depends on Util.java)</p>
+        <p>If you don't yet have access to DepMiner's output — you can click <i>Use Sample Output</i> to see a dependency graph for DepMiner itself. The sample output used to build the graph can be obtained by running <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">./extract-dependencies src/ src/ .
         </pre></div>
-        </p>
+        from DepMiner's root directory</p>
         <form>
           <div>
             <input id="file" type="file" name="myFiles" />
@@ -78,7 +77,6 @@
         <script>
 
           function renderSampleGraph(){
-            // var obj = JSON.parse(sampleJson);
             if (sampleJson) {
               var data = parseDepminerOutput(sampleJson);
               renderGraph(data);
@@ -163,12 +161,29 @@
           function renderGraph(data) {
             svg.selectAll("*").remove();
 
+            svg.append('defs').append('marker')
+              .attr("id",'arrowhead')
+              .attr('viewBox','-0 -5 10 10') //the bound of the SVG viewport for the current SVG fragment. defines a coordinate system 10 wide and 10 high starting on (0,-5)
+              .attr('refX',24) // x coordinate for the reference point of the marker. If circle is bigger, this need to be bigger.
+              .attr('refY',0)
+              .attr('orient','auto')
+                .attr('markerWidth',6)
+                .attr('markerHeight',6)
+                .attr('xoverflow','visible')
+              .append('svg:path')
+              .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+              .attr('fill', '#999')
+              .style('stroke','none');
+
             var link = svg.append("g")
                 .attr("class", "links")
               .selectAll("line")
               .data(data.links)
-              .enter().append("line")
-                .attr("stroke-width", 2.5);
+              .enter()
+              .append("line")
+              .attr("stroke-width", 2.5)
+              .attr("class", "links")
+              .attr('marker-end','url(#arrowhead)');
 
             var node = svg.append("g")
               .attr("class", "nodes")
@@ -230,6 +245,7 @@
           <li>Made with:</li>
           <li>Bootstrap 4.5.3</li>
           <li>jQuery 3.5.1</li>
+          <li>D3 v4.0</li>
         </ul>
       </div>
     </div>
